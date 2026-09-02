@@ -59,3 +59,30 @@ class PatchedSwitchbotCurtain(switchbot.SwitchbotCurtain):
 
         # "06" = set position
         return self._send_mode_command("06", mode)
+
+
+async def close_stale_connections_by_address(address: str) -> None:
+    """
+    Passthrough for Home Assistant's stale connection cleanup.
+
+    HA's SwitchBot __init__.py expects this function to exist in the
+    switchbot module. We forward the call to the underlying pySwitchbot
+    implementation if available.
+    """
+    func = getattr(switchbot, "close_stale_connections_by_address", None)
+    if func is None:
+        _LOGGER.debug(
+            "Underlying pySwitchbot has no close_stale_connections_by_address; "
+            "skipping cleanup for %s",
+            address,
+        )
+        return
+
+    try:
+        await func(address)
+    except Exception as err:
+        _LOGGER.debug(
+            "Error closing stale SwitchBot BLE connection for %s: %s",
+            address,
+            err,
+        )
