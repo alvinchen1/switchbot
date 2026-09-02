@@ -1,7 +1,5 @@
 import logging
-from typing import Any, override
-
-import switchbot
+from typing import Any, Optional, override
 
 from homeassistant.components.cover import (
     ATTR_POSITION,
@@ -17,38 +15,50 @@ from homeassistant.helpers.restore_state import RestoreEntity
 
 from .entity import SwitchbotEntity
 from .coordinator import SwitchbotDataUpdateCoordinator
-from .const import (
-    CONF_CURTAIN_SPEED,
-    DEFAULT_CURTAIN_SPEED,
+from .const import CONF_CURTAIN_SPEED, DEFAULT_CURTAIN_SPEED
+
+from .switchbot import (
+    PatchedSwitchbotCurtain,
+    CURTAIN3_SPEED_QUIETDRIFT,
+    CURTAIN3_SPEED_SILENT,
+    CURTAIN3_SPEED_NORMAL,
+    is_curtain3,
 )
 
 _LOGGER = logging.getLogger(__name__)
 PARALLEL_UPDATES = 0
 
-CURTAIN3_SPEED_QUIETDRIFT = "quietdrift"
-CURTAIN3_SPEED_SILENT = "silent"
-CURTAIN3_SPEED_NORMAL = "normal"
 
-CURTAIN3_SPEED_TO_MODE = {
-    CURTAIN3_SPEED_QUIETDRIFT: 1,
-    CURTAIN3_SPEED_SILENT: 2,
-    CURTAIN3_SPEED_NORMAL: 255,
+CURTAIN3_SPEED_MAP = {
+    "quietdrift": CURTAIN3_SPEED_QUIETDRIFT,
+    "silent": CURTAIN3_SPEED_SILENT,
+    "normal": CURTAIN3_SPEED_NORMAL,
 }
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
-    coordinator = entry.runtime_data
+    """
+    Register entities for this config entry.
+
+    We only override Curtain 3 behavior. All other SwitchBot entities
+    are handled by the other platform files in this integration.
+    """
+    coordinator: SwitchbotDataUpdateCoordinator = entry.runtime_data
     device = coordinator.device
 
-    if isinstance(device, switchbot.SwitchbotCurtain):
+    if isinstance(device, PatchedSwitchbotCurtain):
         async_add_entities([SwitchBotCurtainEntity(coordinator)])
-    else:
-        # keep any other entity setup from core cover.py above/below this
         return
+
+    # Other cover types (Blind Tilt, Roller Shade, etc.)
+    # are handled by HA's original cover.py logic,
+    # which remains in your repo unchanged.
+    return
 
 
 class SwitchBotCurtainEntity(SwitchbotEntity, CoverEntity, RestoreEntity):
-    _device: switchbot.SwitchbotCurtain
+    """Curtain 3 entity with motor speed support."""
+
     _attr_device_class = CoverDeviceClass.CURTAIN
     _attr_supported_features = (
         CoverEntityFeature.OPEN
@@ -60,19 +70,16 @@ class SwitchBotCurtainEntity(SwitchbotEntity, CoverEntity, RestoreEntity):
     _attr_translation_key = "cover"
     _attr_name = None
 
-    _attr_supported_speeds = [
-        CURTAIN3_SPEED_QUIETDRIFT,
-        CURTAIN3_SPEED_SILENT,
-        CURTAIN3_SPEED_NORMAL,
-    ]
+    _attr_supported_speeds = list(CURTAIN3_SPEED_MAP.keys())
 
     def __init__(self, coordinator: SwitchbotDataUpdateCoordinator) -> None:
         super().__init__(coordinator)
+        self._device: PatchedSwitchbotCurtain = coordinator.device
         self._attr_is_closed = None
 
     @callback
     def _validate_speed(self, kwargs: dict[str, Any]) -> None:
-        if getattr(self._device, "model", None) != "Curtain 3":
+        if not is_curtain3(self._device):
             return
         if ATTR_SPEED not in kwargs:
             return
@@ -80,11 +87,12 @@ class SwitchBotCurtainEntity(SwitchbotEntity, CoverEntity, RestoreEntity):
             raise ServiceValidationError("not_valid_speed")
 
     @callback
-    def _motor_speed(self, kwargs: dict[str, Any]) -> int:
-        if getattr(self._device, "model", None) == "Curtain 3":
-            return CURTAIN3_SPEED_TO_MODE[
-                kwargs.get(ATTR_SPEED, CURTAIN3_SPEED_NORMAL)
-            ]
+    def _motor_mode(self, kwargs: dict[str, Any]) -> Optional[int]:
+        if is_curtain3(self._device):
+            speed = kwargs.get(ATTR_SPEED, "normal")
+            return CURTAIN3_SPEED_MAP.get(speed, CURTAIN3_SPEED_NORMAL)
+
+        # Non‑Curtain 3: fall back to legacy HA speed option
         return int(
             self.coordinator.config_entry.options.get(
                 CONF_CURTAIN_SPEED, DEFAULT_CURTAIN_SPEED
@@ -100,18 +108,20 @@ class SwitchBotCurtainEntity(SwitchbotEntity, CoverEntity, RestoreEntity):
             or CoverEntityStateAttribute.CURRENT_POSITION not in last_state.attributes
         ):
             return
+
         self._attr_current_cover_position = last_state.attributes.get(
             CoverEntityStateAttribute.CURRENT_POSITION
         )
         self._last_run_success = last_state.attributes.get("last_run_success")
+
         if self._attr_current_cover_position is not None:
             self._attr_is_closed = self._attr_current_cover_position <= 20
 
     @override
     async def async_open_cover(self, **kwargs: Any) -> None:
         self._validate_speed(kwargs)
-        speed = self._motor_speed(kwargs)
-        self._last_run_success = bool(await self._device.open(speed))
+        mode = self._motor_mode(kwargs)
+        self._last_run_success = bool(self._device.open(mode))
         self._attr_is_opening = self._device.is_opening()
         self._attr_is_closing = self._device.is_closing()
         self.async_write_ha_state()
@@ -119,15 +129,15 @@ class SwitchBotCurtainEntity(SwitchbotEntity, CoverEntity, RestoreEntity):
     @override
     async def async_close_cover(self, **kwargs: Any) -> None:
         self._validate_speed(kwargs)
-        speed = self._motor_speed(kwargs)
-        self._last_run_success = bool(await self._device.close(speed))
+        mode = self._motor_mode(kwargs)
+        self._last_run_success = bool(self._device.close(mode))
         self._attr_is_opening = self._device.is_opening()
         self._attr_is_closing = self._device.is_closing()
         self.async_write_ha_state()
 
     @override
     async def async_stop_cover(self, **kwargs: Any) -> None:
-        self._last_run_success = bool(await self._device.stop())
+        self._last_run_success = bool(self._device.stop())
         self._attr_is_opening = self._device.is_opening()
         self._attr_is_closing = self._device.is_closing()
         self.async_write_ha_state()
@@ -136,8 +146,8 @@ class SwitchBotCurtainEntity(SwitchbotEntity, CoverEntity, RestoreEntity):
     async def async_set_cover_position(self, **kwargs: Any) -> None:
         self._validate_speed(kwargs)
         position = kwargs.get(ATTR_POSITION)
-        speed = self._motor_speed(kwargs)
-        self._last_run_success = bool(await self._device.set_position(position, speed))
+        mode = self._motor_mode(kwargs)
+        self._last_run_success = bool(self._device.set_position(position, mode))
         self._attr_is_opening = self._device.is_opening()
         self._attr_is_closing = self._device.is_closing()
         self.async_write_ha_state()
