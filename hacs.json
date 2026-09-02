@@ -1,0 +1,6 @@
+{
+  "name": "SwitchBot Curtain 3 Speed Override",
+  "content_in_root": false,
+  "domains": ["switchbot"],
+  "homeassistant": "2026.9.0"
+}

@@ -12,22 +12,28 @@ from homeassistant.components.cover import (
     CoverEntityStateAttribute,
 )
 from homeassistant.core import callback
-from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.exceptions import ServiceValidationError
+from homeassistant.helpers.restore_state import RestoreEntity
 
-from .const import (
+from homeassistant.components.switchbot.entity import SwitchbotEntity
+from homeassistant.components.switchbot.coordinator import SwitchbotDataUpdateCoordinator
+from homeassistant.components.switchbot.const import (
     CONF_CURTAIN_SPEED,
     DEFAULT_CURTAIN_SPEED,
-    CURTAIN3_SPEED_QUIETDRIFT,
-    CURTAIN3_SPEED_SILENT,
-    CURTAIN3_SPEED_NORMAL,
-    CURTAIN3_SPEED_TO_MODE,
 )
-from .coordinator import SwitchbotDataUpdateCoordinator
-from .entity import SwitchbotEntity, exception_handler
 
 _LOGGER = logging.getLogger(__name__)
 PARALLEL_UPDATES = 0
+
+CURTAIN3_SPEED_QUIETDRIFT = "quietdrift"
+CURTAIN3_SPEED_SILENT = "silent"
+CURTAIN3_SPEED_NORMAL = "normal"
+
+CURTAIN3_SPEED_TO_MODE = {
+    CURTAIN3_SPEED_QUIETDRIFT: 1,
+    CURTAIN3_SPEED_SILENT: 2,
+    CURTAIN3_SPEED_NORMAL: 255,
+}
 
 
 async def async_setup_entry(hass, entry, async_add_entities):
@@ -100,7 +106,6 @@ class SwitchBotCurtainEntity(SwitchbotEntity, CoverEntity, RestoreEntity):
         if self._attr_current_cover_position is not None:
             self._attr_is_closed = self._attr_current_cover_position <= 20
 
-    @exception_handler
     @override
     async def async_open_cover(self, **kwargs: Any) -> None:
         self._validate_speed(kwargs)
@@ -110,7 +115,6 @@ class SwitchBotCurtainEntity(SwitchbotEntity, CoverEntity, RestoreEntity):
         self._attr_is_closing = self._device.is_closing()
         self.async_write_ha_state()
 
-    @exception_handler
     @override
     async def async_close_cover(self, **kwargs: Any) -> None:
         self._validate_speed(kwargs)
@@ -120,7 +124,6 @@ class SwitchBotCurtainEntity(SwitchbotEntity, CoverEntity, RestoreEntity):
         self._attr_is_closing = self._device.is_closing()
         self.async_write_ha_state()
 
-    @exception_handler
     @override
     async def async_stop_cover(self, **kwargs: Any) -> None:
         self._last_run_success = bool(await self._device.stop())
@@ -128,7 +131,6 @@ class SwitchBotCurtainEntity(SwitchbotEntity, CoverEntity, RestoreEntity):
         self._attr_is_closing = self._device.is_closing()
         self.async_write_ha_state()
 
-    @exception_handler
     @override
     async def async_set_cover_position(self, **kwargs: Any) -> None:
         self._validate_speed(kwargs)
