@@ -15,9 +15,9 @@ from homeassistant.core import callback
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.restore_state import RestoreEntity
 
-from homeassistant.components.switchbot.entity import SwitchbotEntity
-from homeassistant.components.switchbot.coordinator import SwitchbotDataUpdateCoordinator
-from homeassistant.components.switchbot.const import (
+from .entity import SwitchbotEntity
+from .coordinator import SwitchbotDataUpdateCoordinator
+from .const import (
     CONF_CURTAIN_SPEED,
     DEFAULT_CURTAIN_SPEED,
 )
@@ -43,6 +43,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     if isinstance(device, switchbot.SwitchbotCurtain):
         async_add_entities([SwitchBotCurtainEntity(coordinator)])
     else:
+        # keep any other entity setup from core cover.py above/below this
         return
 
 
