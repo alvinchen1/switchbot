@@ -157,6 +157,11 @@
               "false": "[%key:component::binary_sensor::entity_component::problem::state::on%]",
               "true": "[%key:component::binary_sensor::entity_component::problem::state::off%]"
             }
+          },
+          "supported_speeds": {
+            "quietdrift": "QuietDrift",
+            "silent": "Silent",
+            "normal": "Normal"
           }
         }
       },
