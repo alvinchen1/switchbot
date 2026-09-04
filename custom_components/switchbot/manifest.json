@@ -1,7 +1,7 @@
 {
   "domain": "switchbot",
-  "name": "SwitchBot (Custom with Curtain 3 Speed)",
-  "version": "1.0.0",
+  "name": "SwitchBot (Curtain 3 Speed)",
+  "version": "0.1.0",
   "codeowners": ["@alvinchen1"],
   "iot_class": "local_push"
 }

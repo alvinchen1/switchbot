@@ -6,6 +6,20 @@ import switchbot
 from switchbot import SwitchbotModel
 
 DOMAIN = "switchbot"
+# Curtain 3 speed support
+CONF_CURTAIN_SPEED = "curtain_speed"
+
+CURTAIN_SPEED_QUIETDRIFT = "quietdrift"
+CURTAIN_SPEED_SILENT = "silent"
+CURTAIN_SPEED_NORMAL = "normal"
+
+DEFAULT_CURTAIN_SPEED = CURTAIN_SPEED_NORMAL
+
+SUPPORTED_CURTAIN3_SPEEDS = [
+    CURTAIN_SPEED_QUIETDRIFT,
+    CURTAIN_SPEED_SILENT,
+    CURTAIN_SPEED_NORMAL,
+]
 MANUFACTURER = "switchbot"
 
 # Config Attributes
