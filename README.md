@@ -2,11 +2,12 @@
 
 ![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Custom%20Integration-blue)
 ![HACS](https://img.shields.io/badge/HACS-Custom-orange)
-![Version](https://img.shields.io/badge/version-2026.9.3-blue)
+![Version](https://img.shields.io/badge/version-2026.9.0-blue)
 
 This custom Home Assistant integration adds native cover speed support for
 SwitchBot Curtain 3 devices. It exposes the movement profiles supported by the
-Curtain 3 through Home Assistant's cover controls.
+Curtain 3 through Home Assistant's cover controls instead of requiring a
+separate custom service.
 
 ## Features
 
@@ -16,19 +17,6 @@ Curtain 3 through Home Assistant's cover controls.
 - `Normal`: standard Curtain 3 movement speed.
 - Speed selection for opening, closing, and moving to a position.
 - Local Bluetooth control through Home Assistant and the SwitchBot integration.
-
-## How this differs from the standard integration
-
-Since 2026.9.0, the standard Home Assistant SwitchBot integration configures
-Curtain movement speed in the device's **Options** dialog. That setting is
-useful when one speed should apply to every operation, but it cannot select a
-different profile for an individual automation or action.
-
-This custom integration allows a speed profile to be sent with each open,
-close, or set-position action. You can therefore use QuietDrift for a quiet
-morning routine and Normal for everyday operation without changing the device
-options. The speed is not a separate persistent device option; it can instead
-be supplied with each action.
 
 ## Requirements
 
@@ -51,9 +39,9 @@ Matter, or the SwitchBot API cannot use these speed profiles.
 5. Restart Home Assistant.
 
 After restarting, configure the **SwitchBot** integration normally. If the
-standard SwitchBot integration is already configured, this installation will
-override it and the existing config entry will be retained; restart Home
-Assistant after installing or upgrading this custom integration.
+standard SwitchBot integration is already configured, its existing config
+entry can be retained; restart Home Assistant after installing or upgrading
+this custom integration.
 
 ## Manual installation
 
@@ -70,8 +58,8 @@ The final directory should contain:
 
 ## Using a speed profile
 
-The speed is selected per action with the native `cover.open_cover`,
-`cover.close_cover`, or `cover.set_cover_position` action. The available
+The speed is selected with the native `cover.open_cover`,
+`cover.close_cover`, or `cover.set_cover_position` service. The available
 values are lowercase:
 
 - `quietdrift`
@@ -107,22 +95,6 @@ data:
 
 The speed selector is also available from Home Assistant's cover controls
 when the entity reports the `SPEED` feature.
-
-For example, a separate evening automation can use the normal profile:
-
-```yaml
-alias: Close curtains normally
-triggers:
-  - trigger: sun
-    event: sunset
-actions:
-  - action: cover.close_cover
-    target:
-      entity_id: cover.bedroom_curtain
-    data:
-      speed: normal
-mode: single
-```
 
 ## Troubleshooting
 
