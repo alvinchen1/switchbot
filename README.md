@@ -24,11 +24,11 @@ Curtain movement speed in the device's **Options** dialog. That setting is
 useful when one speed should apply to every operation, but it cannot select a
 different profile for an individual automation or action.
 
-This custom integration allows the option speed profile to be sent with each
-open, close, or set-position action. You can therefore use QuietDrift for a
-quiet morning routine and Normal for everyday operation without changing the
-device options. The speed is not a separate persistent device option, but
-instead can be a per-action option.
+This custom integration allows a speed profile to be sent with each open,
+close, or set-position action. You can therefore use QuietDrift for a quiet
+morning routine and Normal for everyday operation without changing the device
+options. The speed is not a separate persistent device option; it can instead
+be supplied with each action.
 
 ## Requirements
 
@@ -71,7 +71,7 @@ The final directory should contain:
 ## Using a speed profile
 
 The speed is selected per action with the native `cover.open_cover`,
-`cover.close_cover`, or `cover.set_cover_position` service. The available
+`cover.close_cover`, or `cover.set_cover_position` action. The available
 values are lowercase:
 
 - `quietdrift`
