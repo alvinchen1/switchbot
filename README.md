@@ -6,8 +6,7 @@
 
 This custom Home Assistant integration adds native cover speed support for
 SwitchBot Curtain 3 devices. It exposes the movement profiles supported by the
-Curtain 3 through Home Assistant's cover controls instead of requiring a
-separate custom service.
+Curtain 3 through Home Assistant's cover controls.
 
 ## Features
 
@@ -20,15 +19,16 @@ separate custom service.
 
 ## How this differs from the standard integration
 
-The standard Home Assistant SwitchBot integration configures one Curtain
-movement speed in the device's **Options** dialog. That setting is useful when
-one speed should apply to every operation, but it cannot select a different
-profile for an individual automation or service call.
+Since 2026.9.0, the standard Home Assistant SwitchBot integration configures
+Curtain movement speed in the device's **Options** dialog. That setting is
+useful when one speed should apply to every operation, but it cannot select a
+different profile for an individual automation or action.
 
-This custom integration sends the speed profile with each open, close, or
-set-position action. You can therefore use QuietDrift for a quiet morning
-routine and Normal for everyday operation without changing the device options.
-The speed is not a separate persistent device setting.
+This custom integration allows the option speed profile to be sent with each
+open, close, or set-position action. You can therefore use QuietDrift for a
+quiet morning routine and Normal for everyday operation without changing the
+device options. The speed is not a separate persistent device option, but
+instead can be a per-action option.
 
 ## Requirements
 
@@ -51,9 +51,9 @@ Matter, or the SwitchBot API cannot use these speed profiles.
 5. Restart Home Assistant.
 
 After restarting, configure the **SwitchBot** integration normally. If the
-standard SwitchBot integration is already configured, its existing config
-entry can be retained; restart Home Assistant after installing or upgrading
-this custom integration.
+standard SwitchBot integration is already configured, this installation will
+override it and the existing config entry will be retained; restart Home
+Assistant after installing or upgrading this custom integration.
 
 ## Manual installation
 
