@@ -1,0 +1,75 @@
+name: Sync Home Assistant SwitchBot
+
+on:
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the custom integration branch
+        uses: actions/checkout@v4
+        with:
+          ref: alvinchen1-curtain-speed-profile
+          fetch-depth: 0
+
+      - name: Fetch Home Assistant SwitchBot integration
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse \
+            --branch dev \
+            https://github.com/home-assistant/core.git "$RUNNER_TEMP/home-assistant-core"
+          git -C "$RUNNER_TEMP/home-assistant-core" sparse-checkout set \
+            homeassistant/components/switchbot
+
+      - name: Sync upstream files
+        run: |
+          source_dir="$RUNNER_TEMP/home-assistant-core/homeassistant/components/switchbot"
+          target_dir="custom_components/switchbot"
+
+          find "$source_dir" -type f -print0 | while IFS= read -r -d '' source_file; do
+            relative_file="${source_file#"$source_dir"/}"
+
+            # Keep the custom Curtain 3 speed implementation and HACS metadata.
+            case "$relative_file" in
+              const.py|cover.py|manifest.json|strings.json)
+                continue
+                ;;
+            esac
+
+            target_file="$target_dir/$relative_file"
+            mkdir -p "$(dirname "$target_file")"
+            cp "$source_file" "$target_file"
+          done
+
+      - name: Create synchronization pull request
+        id: pull-request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          base: alvinchen1-curtain-speed-profile
+          branch: automation/sync-home-assistant-switchbot
+          delete-branch: true
+          commit-message: "Sync SwitchBot integration from Home Assistant core"
+          title: "Sync SwitchBot integration from Home Assistant core"
+          body: |
+            This pull request synchronizes shared SwitchBot integration files
+            from Home Assistant Core's `dev` branch.
+
+            The custom `const.py`, `cover.py`, `manifest.json`, and
+            `strings.json` files remain excluded because they contain the
+            Curtain 3 speed behavior and HACS metadata.
+          labels: |
+            dependencies
+            automated
+
+      - name: Enable auto-merge
+        if: steps.pull-request.outputs.pull-request-number != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ steps.pull-request.outputs.pull-request-number }}
+        run: gh pr merge "$PR_NUMBER" --auto --squash --repo "$GITHUB_REPOSITORY"
