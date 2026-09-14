@@ -1,0 +1,13 @@
+{
+  "entity": {
+    "cover": {
+      "state_attributes": {
+        "supported_speeds": {
+          "quietdrift": "QuietDrift",
+          "silent": "Silent",
+          "normal": "Normal"
+        }
+      }
+    }
+  }
+}

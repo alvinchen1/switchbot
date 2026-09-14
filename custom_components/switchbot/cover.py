@@ -15,17 +15,16 @@ from homeassistant.components.cover import (
     CoverEntityStateAttribute,
 )
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from .const import (
-    CONF_CURTAIN_SPEED,
-    DEFAULT_CURTAIN_SPEED,
+    CURTAIN_SPEED_NORMAL,
+    CURTAIN_SPEED_TO_MODE,
     ROLLER_SHADE_SPEED_PERFORMANCE,
     ROLLER_SHADE_SPEED_TO_MODE,
-    CURTAIN_SPEED_QUIETDRIFT,
-    CURTAIN_SPEED_SILENT,
-    CURTAIN_SPEED_NORMAL,
+    SUPPORTED_CURTAIN3_SPEEDS,
 )
 from .coordinator import SwitchbotConfigEntry, SwitchbotDataUpdateCoordinator
 from .entity import SwitchbotEntity, exception_handler
@@ -62,37 +61,28 @@ class SwitchBotCurtainEntity(SwitchbotEntity, CoverEntity, RestoreEntity):
         | CoverEntityFeature.CLOSE
         | CoverEntityFeature.STOP
         | CoverEntityFeature.SET_POSITION
+        | CoverEntityFeature.SPEED
     )
-    _attr_supported_speeds = SUPPORTED_CURTAIN3_SPEEDS
+    _attr_supported_speeds = list(SUPPORTED_CURTAIN3_SPEEDS)
     _attr_translation_key = "cover"
     _attr_name = None
-    CURTAIN3_SPEED_MAP = {
-        CURTAIN_SPEED_QUIETDRIFT: 1,
-        CURTAIN_SPEED_SILENT: 2,
-        CURTAIN_SPEED_NORMAL: 255,
-    }
 
     def __init__(self, coordinator: SwitchbotDataUpdateCoordinator) -> None:
         """Initialize the Switchbot."""
         super().__init__(coordinator)
         self._attr_is_closed = None
 
-    def _validate_speed(self, kwargs):
+    def _validate_speed(self, kwargs: dict[str, Any]) -> None:
         if ATTR_SPEED in kwargs:
             if kwargs[ATTR_SPEED] not in SUPPORTED_CURTAIN3_SPEEDS:
                 raise ServiceValidationError("not_valid_speed")
-    def _motor_mode(self, kwargs):
-        speed = kwargs.get(ATTR_SPEED, DEFAULT_CURTAIN_SPEED)
-        return CURTAIN3_SPEED_MAP.get(speed, CURTAIN3_SPEED_MAP[CURTAIN_SPEED_NORMAL])
 
     @callback
-    def _get_curtain_speed(self) -> int:
-        """Return the configured curtain speed."""
-        return int(
-            self.coordinator.config_entry.options.get(
-                CONF_CURTAIN_SPEED, DEFAULT_CURTAIN_SPEED
-            )
-        )
+    def _motor_mode(self, kwargs: dict[str, Any]) -> int:
+        """Return the Curtain 3 motor mode for the requested speed."""
+        return CURTAIN_SPEED_TO_MODE[
+            kwargs.get(ATTR_SPEED, CURTAIN_SPEED_NORMAL)
+        ]
 
     @override
     async def async_added_to_hass(self) -> None:
@@ -124,8 +114,6 @@ class SwitchBotCurtainEntity(SwitchbotEntity, CoverEntity, RestoreEntity):
         self._attr_is_opening = self._device.is_opening()
         self._attr_is_closing = self._device.is_closing()
         self.async_write_ha_state()
-
-
     @exception_handler
     @override
     async def async_close_cover(self, **kwargs: Any) -> None:
@@ -138,8 +126,6 @@ class SwitchBotCurtainEntity(SwitchbotEntity, CoverEntity, RestoreEntity):
         self._attr_is_opening = self._device.is_opening()
         self._attr_is_closing = self._device.is_closing()
         self.async_write_ha_state()
-
-
     @exception_handler
     @override
     async def async_stop_cover(self, **kwargs: Any) -> None:
@@ -149,8 +135,6 @@ class SwitchBotCurtainEntity(SwitchbotEntity, CoverEntity, RestoreEntity):
         self._attr_is_opening = self._device.is_opening()
         self._attr_is_closing = self._device.is_closing()
         self.async_write_ha_state()
-
-
     @exception_handler
     @override
     async def async_set_cover_position(self, **kwargs: Any) -> None:
