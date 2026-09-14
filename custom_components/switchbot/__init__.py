@@ -39,7 +39,6 @@ from .const import (
 )
 from .coordinator import SwitchbotConfigEntry, SwitchbotDataUpdateCoordinator
 from .services import async_setup_services
-from .switchbot import PatchedSwitchbotCurtain
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
@@ -198,13 +197,7 @@ PLATFORMS_BY_TYPE = {
         Platform.LOCK,
         Platform.SENSOR,
     ],
-    SupportedModels.LOCK_ULTRA_MAX.value: [
-        Platform.BINARY_SENSOR,
-        Platform.LOCK,
-        Platform.SENSOR,
-    ],
     SupportedModels.WEATHER_STATION.value: [Platform.SENSOR],
-    SupportedModels.UNIVERSAL_REMOTE.value: [Platform.SENSOR],
     SupportedModels.CANDLE_WARMER_LAMP.value: [Platform.LIGHT, Platform.SENSOR],
     SupportedModels.RGBIC_NEON_ROPE_LIGHT.value: [Platform.LIGHT, Platform.SENSOR],
     SupportedModels.RGBIC_NEON_WIRE_ROPE_LIGHT.value: [
@@ -214,7 +207,7 @@ PLATFORMS_BY_TYPE = {
 }
 CLASS_BY_DEVICE = {
     SupportedModels.CEILING_LIGHT.value: switchbot.SwitchbotCeilingLight,
-    SupportedModels.CURTAIN.value: PatchedSwitchbotCurtain,
+    SupportedModels.CURTAIN.value: switchbot.SwitchbotCurtain,
     SupportedModels.BOT.value: switchbot.Switchbot,
     SupportedModels.PLUG.value: switchbot.SwitchbotPlugMini,
     SupportedModels.BULB.value: switchbot.SwitchbotBulb,
@@ -264,14 +257,10 @@ CLASS_BY_DEVICE = {
     SupportedModels.LOCK_VISION_PRO.value: switchbot.SwitchbotLock,
     SupportedModels.LOCK_VISION.value: switchbot.SwitchbotLock,
     SupportedModels.LOCK_PRO_WIFI.value: switchbot.SwitchbotLock,
-    SupportedModels.LOCK_ULTRA_MAX.value: switchbot.SwitchbotLock,
     SupportedModels.CANDLE_WARMER_LAMP.value: switchbot.SwitchbotCandleWarmerLamp,
     SupportedModels.RGBIC_NEON_ROPE_LIGHT.value: switchbot.SwitchbotRgbicNeonLight,
     SupportedModels.RGBIC_NEON_WIRE_ROPE_LIGHT.value: switchbot.SwitchbotRgbicNeonLight,
 }
-
-if universal_remote_class := getattr(switchbot, "SwitchbotUniversalRemote", None):
-    CLASS_BY_DEVICE[SupportedModels.UNIVERSAL_REMOTE.value] = universal_remote_class
 
 
 _LOGGER = logging.getLogger(__name__)

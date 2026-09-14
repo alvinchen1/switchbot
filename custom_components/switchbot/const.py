@@ -47,7 +47,6 @@ class SupportedModels(StrEnum):
     HUB3 = "hub3"
     LOCK_LITE = "lock_lite"
     LOCK_ULTRA = "lock_ultra"
-    LOCK_ULTRA_MAX = "lock_ultra_max"
     AIR_PURIFIER_JP = "air_purifier_jp"
     AIR_PURIFIER_US = "air_purifier_us"
     AIR_PURIFIER_TABLE_JP = "air_purifier_table_jp"
@@ -73,7 +72,6 @@ class SupportedModels(StrEnum):
     LOCK_PRO_WIFI = "lock_pro_wifi"
     WEATHER_STATION = "weather_station"
     STANDING_FAN = "standing_fan"
-    UNIVERSAL_REMOTE = "universal_remote"
     CANDLE_WARMER_LAMP = "candle_warmer_lamp"
     RGBIC_NEON_ROPE_LIGHT = "rgbic_neon_rope_light"
     RGBIC_NEON_WIRE_ROPE_LIGHT = "rgbic_neon_wire_rope_light"
@@ -221,18 +219,6 @@ ENCRYPTED_SWITCHBOT_MODEL_TO_CLASS: dict[
     SwitchbotModel.RGBIC_NEON_ROPE_LIGHT: switchbot.SwitchbotRgbicNeonLight,
     SwitchbotModel.RGBIC_NEON_WIRE_ROPE_LIGHT: switchbot.SwitchbotRgbicNeonLight,
 }
-
-# Keep the integration importable with older pySwitchbot releases that do not
-# define model types added by newer Home Assistant versions.
-if lock_ultra_max := getattr(SwitchbotModel, "LOCK_ULTRA_MAX", None):
-    CONNECTABLE_SUPPORTED_MODEL_TYPES[lock_ultra_max] = SupportedModels.LOCK_ULTRA_MAX
-    ENCRYPTED_MODELS.add(lock_ultra_max)
-    ENCRYPTED_SWITCHBOT_MODEL_TO_CLASS[lock_ultra_max] = switchbot.SwitchbotLock
-
-if universal_remote := getattr(SwitchbotModel, "UNIVERSAL_REMOTE", None):
-    CONNECTABLE_SUPPORTED_MODEL_TYPES[universal_remote] = (
-        SupportedModels.UNIVERSAL_REMOTE
-    )
 
 HASS_SENSOR_TYPE_TO_SWITCHBOT_MODEL = {
     str(v): k for k, v in SUPPORTED_MODEL_TYPES.items()
