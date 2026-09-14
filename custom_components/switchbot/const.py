@@ -6,20 +6,6 @@ import switchbot
 from switchbot import SwitchbotModel
 
 DOMAIN = "switchbot"
-# Curtain 3 speed support
-CONF_CURTAIN_SPEED = "curtain_speed"
-
-CURTAIN_SPEED_QUIETDRIFT = "quietdrift"
-CURTAIN_SPEED_SILENT = "silent"
-CURTAIN_SPEED_NORMAL = "normal"
-
-DEFAULT_CURTAIN_SPEED = CURTAIN_SPEED_NORMAL
-
-SUPPORTED_CURTAIN3_SPEEDS = [
-    CURTAIN_SPEED_QUIETDRIFT,
-    CURTAIN_SPEED_SILENT,
-    CURTAIN_SPEED_NORMAL,
-]
 MANUFACTURER = "switchbot"
 
 # Config Attributes
@@ -249,6 +235,21 @@ DEFAULT_LOCK_NIGHTLATCH = False
 DEFAULT_CURTAIN_SPEED = 255
 CURTAIN_SPEED_MIN = 0
 CURTAIN_SPEED_MAX = 255
+
+# Curtain 3 movement profiles, exposed as native cover speeds.
+CURTAIN_SPEED_QUIETDRIFT = "quietdrift"
+CURTAIN_SPEED_SILENT = "silent"
+CURTAIN_SPEED_NORMAL = "normal"
+SUPPORTED_CURTAIN3_SPEEDS = [
+    CURTAIN_SPEED_QUIETDRIFT,
+    CURTAIN_SPEED_SILENT,
+    CURTAIN_SPEED_NORMAL,
+]
+CURTAIN_SPEED_TO_MODE = {
+    CURTAIN_SPEED_QUIETDRIFT: 1,
+    CURTAIN_SPEED_SILENT: 2,
+    CURTAIN_SPEED_NORMAL: 255,
+}
 
 # Config Options
 CONF_RETRY_COUNT = "retry_count"
