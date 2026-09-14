@@ -37,7 +37,7 @@ jobs:
             # These files contain custom-component metadata or Curtain 3 speed
             # behavior and must be adapted manually instead of overwritten.
             case "$relative_file" in
-              const.py|cover.py|manifest.json|strings.json)
+              __init__.py|const.py|cover.py|manifest.json|strings.json|switchbot.py)
                 continue
                 ;;
             esac
