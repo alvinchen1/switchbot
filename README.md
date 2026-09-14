@@ -18,6 +18,18 @@ separate custom service.
 - Speed selection for opening, closing, and moving to a position.
 - Local Bluetooth control through Home Assistant and the SwitchBot integration.
 
+## How this differs from the standard integration
+
+The standard Home Assistant SwitchBot integration configures one Curtain
+movement speed in the device's **Options** dialog. That setting is useful when
+one speed should apply to every operation, but it cannot select a different
+profile for an individual automation or service call.
+
+This custom integration sends the speed profile with each open, close, or
+set-position action. You can therefore use QuietDrift for a quiet morning
+routine and Normal for everyday operation without changing the device options.
+The speed is not a separate persistent device setting.
+
 ## Requirements
 
 - Home Assistant 2026.9.0 or newer.
@@ -58,7 +70,7 @@ The final directory should contain:
 
 ## Using a speed profile
 
-The speed is selected with the native `cover.open_cover`,
+The speed is selected per action with the native `cover.open_cover`,
 `cover.close_cover`, or `cover.set_cover_position` service. The available
 values are lowercase:
 
@@ -95,6 +107,22 @@ data:
 
 The speed selector is also available from Home Assistant's cover controls
 when the entity reports the `SPEED` feature.
+
+For example, a separate evening automation can use the normal profile:
+
+```yaml
+alias: Close curtains normally
+triggers:
+  - trigger: sun
+    event: sunset
+actions:
+  - action: cover.close_cover
+    target:
+      entity_id: cover.bedroom_curtain
+    data:
+      speed: normal
+mode: single
+```
 
 ## Troubleshooting
 
