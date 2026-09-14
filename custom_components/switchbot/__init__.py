@@ -39,6 +39,7 @@ from .const import (
 )
 from .coordinator import SwitchbotConfigEntry, SwitchbotDataUpdateCoordinator
 from .services import async_setup_services
+from .switchbot import PatchedSwitchbotCurtain
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
@@ -213,7 +214,7 @@ PLATFORMS_BY_TYPE = {
 }
 CLASS_BY_DEVICE = {
     SupportedModels.CEILING_LIGHT.value: switchbot.SwitchbotCeilingLight,
-    SupportedModels.CURTAIN.value: switchbot.SwitchbotCurtain,
+    SupportedModels.CURTAIN.value: PatchedSwitchbotCurtain,
     SupportedModels.BOT.value: switchbot.Switchbot,
     SupportedModels.PLUG.value: switchbot.SwitchbotPlugMini,
     SupportedModels.BULB.value: switchbot.SwitchbotBulb,
