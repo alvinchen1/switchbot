@@ -1,4 +1,4 @@
-# SwitchBot Curtain 3 Speed for Home Assistant
+# SwitchBot for Home Assistant
 
 ![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Custom%20Integration-blue)
 ![HACS](https://img.shields.io/badge/HACS-Custom-orange)
@@ -47,7 +47,7 @@ Matter, or the SwitchBot API cannot use these speed profiles.
    **Custom repositories**.
 3. Add `https://github.com/alvinchen1/switchbot` as an **Integration**
    repository.
-4. Download **SwitchBot Curtain 3 Speed**.
+4. Download **SwitchBot**.
 5. Restart Home Assistant.
 
 After restarting, configure the **SwitchBot** integration normally. If the
