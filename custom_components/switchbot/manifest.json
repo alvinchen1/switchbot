@@ -1,7 +1,7 @@
 {
   "domain": "switchbot",
   "name": "SwitchBot",
-  "version": "2026.9.2",
+  "version": "2026.9.3",
   "documentation": "https://github.com/alvinchen1/switchbot",
   "issue_tracker": "https://github.com/alvinchen1/switchbot/issues",
   "codeowners": ["@alvinchen1"],

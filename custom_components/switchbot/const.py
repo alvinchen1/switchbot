@@ -103,7 +103,6 @@ CONNECTABLE_SUPPORTED_MODEL_TYPES = {
     SwitchbotModel.K10_PRO_COMBO_VACUUM: SupportedModels.K10_PRO_COMBO_VACUUM,
     SwitchbotModel.LOCK_LITE: SupportedModels.LOCK_LITE,
     SwitchbotModel.LOCK_ULTRA: SupportedModels.LOCK_ULTRA,
-    SwitchbotModel.LOCK_ULTRA_MAX: SupportedModels.LOCK_ULTRA_MAX,
     SwitchbotModel.AIR_PURIFIER_JP: SupportedModels.AIR_PURIFIER_JP,
     SwitchbotModel.AIR_PURIFIER_US: SupportedModels.AIR_PURIFIER_US,
     SwitchbotModel.AIR_PURIFIER_TABLE_JP: SupportedModels.AIR_PURIFIER_TABLE_JP,
@@ -128,7 +127,6 @@ CONNECTABLE_SUPPORTED_MODEL_TYPES = {
     SwitchbotModel.LOCK_VISION: SupportedModels.LOCK_VISION,
     SwitchbotModel.LOCK_PRO_WIFI: SupportedModels.LOCK_PRO_WIFI,
     SwitchbotModel.STANDING_FAN: SupportedModels.STANDING_FAN,
-    SwitchbotModel.UNIVERSAL_REMOTE: SupportedModels.UNIVERSAL_REMOTE,
     SwitchbotModel.CANDLE_WARMER_LAMP: SupportedModels.CANDLE_WARMER_LAMP,
     SwitchbotModel.RGBIC_NEON_ROPE_LIGHT: SupportedModels.RGBIC_NEON_ROPE_LIGHT,
     SwitchbotModel.RGBIC_NEON_WIRE_ROPE_LIGHT: (
@@ -163,7 +161,6 @@ ENCRYPTED_MODELS = {
     SwitchbotModel.LOCK_PRO,
     SwitchbotModel.LOCK_LITE,
     SwitchbotModel.LOCK_ULTRA,
-    SwitchbotModel.LOCK_ULTRA_MAX,
     SwitchbotModel.AIR_PURIFIER_JP,
     SwitchbotModel.AIR_PURIFIER_US,
     SwitchbotModel.AIR_PURIFIER_TABLE_JP,
@@ -198,7 +195,6 @@ ENCRYPTED_SWITCHBOT_MODEL_TO_CLASS: dict[
     SwitchbotModel.RELAY_SWITCH_1: switchbot.SwitchbotRelaySwitch,
     SwitchbotModel.LOCK_LITE: switchbot.SwitchbotLock,
     SwitchbotModel.LOCK_ULTRA: switchbot.SwitchbotLock,
-    SwitchbotModel.LOCK_ULTRA_MAX: switchbot.SwitchbotLock,
     SwitchbotModel.AIR_PURIFIER_JP: switchbot.SwitchbotAirPurifier,
     SwitchbotModel.AIR_PURIFIER_US: switchbot.SwitchbotAirPurifier,
     SwitchbotModel.AIR_PURIFIER_TABLE_JP: switchbot.SwitchbotAirPurifier,
@@ -225,6 +221,18 @@ ENCRYPTED_SWITCHBOT_MODEL_TO_CLASS: dict[
     SwitchbotModel.RGBIC_NEON_ROPE_LIGHT: switchbot.SwitchbotRgbicNeonLight,
     SwitchbotModel.RGBIC_NEON_WIRE_ROPE_LIGHT: switchbot.SwitchbotRgbicNeonLight,
 }
+
+# Keep the integration importable with older pySwitchbot releases that do not
+# define model types added by newer Home Assistant versions.
+if lock_ultra_max := getattr(SwitchbotModel, "LOCK_ULTRA_MAX", None):
+    CONNECTABLE_SUPPORTED_MODEL_TYPES[lock_ultra_max] = SupportedModels.LOCK_ULTRA_MAX
+    ENCRYPTED_MODELS.add(lock_ultra_max)
+    ENCRYPTED_SWITCHBOT_MODEL_TO_CLASS[lock_ultra_max] = switchbot.SwitchbotLock
+
+if universal_remote := getattr(SwitchbotModel, "UNIVERSAL_REMOTE", None):
+    CONNECTABLE_SUPPORTED_MODEL_TYPES[universal_remote] = (
+        SupportedModels.UNIVERSAL_REMOTE
+    )
 
 HASS_SENSOR_TYPE_TO_SWITCHBOT_MODEL = {
     str(v): k for k, v in SUPPORTED_MODEL_TYPES.items()

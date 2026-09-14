@@ -2,7 +2,7 @@
 
 ![Home Assistant](https://img.shields.io/badge/Home%20Assistant-Custom%20Integration-blue)
 ![HACS](https://img.shields.io/badge/HACS-Custom-orange)
-![Version](https://img.shields.io/badge/version-2026.9.2-blue)
+![Version](https://img.shields.io/badge/version-2026.9.3-blue)
 
 This custom Home Assistant integration adds native cover speed support for
 SwitchBot Curtain 3 devices. It exposes the movement profiles supported by the
