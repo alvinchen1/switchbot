@@ -39,7 +39,6 @@ from .const import (
 )
 from .coordinator import SwitchbotConfigEntry, SwitchbotDataUpdateCoordinator
 from .services import async_setup_services
-from .switchbot import PatchedSwitchbotCurtain
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 
@@ -204,6 +203,7 @@ PLATFORMS_BY_TYPE = {
         Platform.SENSOR,
     ],
     SupportedModels.WEATHER_STATION.value: [Platform.SENSOR],
+    SupportedModels.UNIVERSAL_REMOTE.value: [Platform.SENSOR],
     SupportedModels.CANDLE_WARMER_LAMP.value: [Platform.LIGHT, Platform.SENSOR],
     SupportedModels.RGBIC_NEON_ROPE_LIGHT.value: [Platform.LIGHT, Platform.SENSOR],
     SupportedModels.RGBIC_NEON_WIRE_ROPE_LIGHT.value: [
@@ -213,7 +213,7 @@ PLATFORMS_BY_TYPE = {
 }
 CLASS_BY_DEVICE = {
     SupportedModels.CEILING_LIGHT.value: switchbot.SwitchbotCeilingLight,
-    SupportedModels.CURTAIN.value: PatchedSwitchbotCurtain,
+    SupportedModels.CURTAIN.value: switchbot.SwitchbotCurtain,
     SupportedModels.BOT.value: switchbot.Switchbot,
     SupportedModels.PLUG.value: switchbot.SwitchbotPlugMini,
     SupportedModels.BULB.value: switchbot.SwitchbotBulb,
@@ -227,6 +227,7 @@ CLASS_BY_DEVICE = {
     SupportedModels.ROLLER_SHADE.value: switchbot.SwitchbotRollerShade,
     SupportedModels.CIRCULATOR_FAN.value: switchbot.SwitchbotFan,
     SupportedModels.STANDING_FAN.value: switchbot.SwitchbotStandingFan,
+    SupportedModels.UNIVERSAL_REMOTE.value: switchbot.SwitchbotUniversalRemote,
     SupportedModels.S10_VACUUM.value: switchbot.SwitchbotVacuum,
     SupportedModels.S20_VACUUM.value: switchbot.SwitchbotVacuum,
     SupportedModels.K10_VACUUM.value: switchbot.SwitchbotVacuum,
